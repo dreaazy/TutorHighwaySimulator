@@ -22,6 +22,57 @@ Tutor::Tutor(const std::string& file)
 {
 }
 
+void Tutor::processTickets()
+{
+		// first check if the heap is empty
+		
+		while(!heap.empty())
+		{
+				Event e = heap.top();
+				heap.pop();
+				double passedTime = e.time_;
+				int passedKm = e.km_; //this is also the id of the varco
+				std::string passedPlate = e.plate_;
+				
+				
+				//check the car is already passed
+				auto it = last_passage.find(passedPlate);
+				
+				//if it find something it returns the iterator in that position
+				//if not it returns container.end()
+				if(it == last_passage.end())
+				{
+						//the car is not yet passed in from of a tutor
+						last_passage[passedPlate] ={passedKm,passedTime};
+				}
+				else//the car was passed in from of a tutor 
+				{
+					//access with the iterator the LastPassage object as reference
+					LastPassage& last = it->second;
+					
+					//data
+					int kmDone = e.km_ - last.kmVarco;
+					double timeDone = e.time_ - last.time;
+					double vMedia = kmDone / timeDone;
+					
+					if(vMedia > limit_)
+					{
+						emit_ticket(passedPlate, vMedia);
+						
+					}
+					else
+					{
+							last = {passedKm, passedTime};
+					}
+					
+					
+				}
+				
+			
+		}
+	
+}
+
 //create the heap of events
 void Tutor::createHeap()
 {
@@ -98,4 +149,23 @@ void Tutor::stats() const
         std::cout << "Top score: " << heap.top().time_ << '\n';
         std::cout << "Top plate: " << heap.top().plate_ << '\n';
     }
+}
+
+
+void Tutor::emit_ticket(std::string plate , double speed)
+{
+	std::cout << "ticket emitted for the car: " << plate << " for going at the speed of: "  << speed << "\n";
+}
+
+
+
+
+void Tutor::reset()
+{
+		//empty the heap
+		
+		//default
+		curTime_ = 0;
+		
+	
 }

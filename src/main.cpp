@@ -2,7 +2,12 @@
 
 int main()
 {
+	
     Tutor tutor("Passages.txt");
+    
     tutor.createHeap();
     tutor.stats();
+    tutor.processTickets();
+    
+    
 }
