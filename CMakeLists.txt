@@ -22,6 +22,8 @@ add_executable(main
     src/main.cpp
 )
 
+add_executable(simulatore src/simulatore.cpp)
+
 target_link_libraries(main
     ${PROJECT_NAME}
     libTutor
