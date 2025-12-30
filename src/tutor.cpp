@@ -22,12 +22,16 @@ bool Event::operator<(const Event& other) const
 Tutor::Tutor(const std::string& file)
     : filePassages(file)
 {
+	createHeap();
 }
 
 
 //process only one event, called inside set_time
 void Tutor::processEvent(Event e)
 {
+	//update stats of varco
+	varcoStats_[e.km_].totalVehicles++;
+	
 	double passedTime = e.time_;
 	int passedKm = e.km_; //this is also the id of the varco
 	std::string passedPlate = e.plate_;
@@ -49,20 +53,29 @@ void Tutor::processEvent(Event e)
 		LastPassage& last = it->second;
 					
 		//data
-		int kmDone = e.km_ - last.kmVarco;
+		int kmDone = std::abs(e.km_ - last.kmVarco);
 		
 		//the time is in seconds
 		double timeDone = e.time_ - last.time; 
 		timeDone = timeDone / 3600;
+		
 		double vMedia = kmDone / timeDone;
 					
 		if(vMedia > limit_)
 		{
+			//count of sanctioned vehicles
+			santionedVehicles_++;
+			
 		//to be printed
 		//plate - average velocity - start varco - start time - end varco - end time
 			emit_ticket(passedPlate, vMedia, last.kmVarco, last.time, passedKm, passedTime);
 						
 		}
+		
+		
+		//update the total time and total distance
+		totalTime_ += timeDone;
+		totalDistance_ +=kmDone;
 		
 		
 		last_passage.erase(it);	
@@ -196,13 +209,26 @@ void Tutor::createHeap()
 
 void Tutor::stats() const
 {
-    std::cout << "Number of events: " << heap.size() << '\n';
-
-    if (!heap.empty())
+	std::cout << "---------------------------------------------------" <<"\n";
+	std::cout << "Stats of vehicles until time: " << curTime_ << "\n";
+    for(auto& p : varcoStats_)
     {
-        std::cout << "Top score: " << heap.top().time_ << '\n';
-        std::cout << "Top plate: " << heap.top().plate_ << '\n';
-    }
+		int varco = p.first;
+		const VarcoStats& s = p.second;
+		
+		double minutes = curTime_ / 60.0;
+		int avgPerMin = minutes > 0 ? s.totalVehicles / minutes : 0;
+		
+		std::cout << "Varco "<< varco << ": "
+				  << s.totalVehicles << " veicoli, "
+				  << avgPerMin << " veicoli/min \n";
+				  
+	}
+	
+	double avgSpeed = totalTime_ > 0 ? totalDistance_ / totalTime_ : 0;
+	
+	std::cout << "velocita media: " << avgSpeed << "\n";
+	std::cout << "veicoli sanzionati: " << santionedVehicles_ << "\n";
 }
 
 
@@ -216,9 +242,9 @@ void Tutor::emit_ticket(const std::string plate,
     std::cout << "Plate: " << plate
               << " | Speed: " << speed << " km/h"
               << " | Varco Entrata: " << entrVarco << " km"
-              << " at " << entrTime << " sec"
+              << " at " << entrTime << " sec."
               << " | Varco Uscita: " << endVarco << " km"
-              << " at " << endTime << " se"
+              << " at " << endTime << " sec."
               << '\n';
 }
 
@@ -227,6 +253,8 @@ void Tutor::emit_ticket(const std::string plate,
 
 void Tutor::set_time(double newTime)
 {
+	//for better reading
+	std::cout << "---------------------------------------------------" <<"\n";
 	//check with current time
 	if(newTime < curTime_)
 	{
@@ -248,6 +276,8 @@ void Tutor::set_time(double newTime)
 		//after updated print veichles that have surpassed the speed limit
 		
 		//processTickets(); 
+		
+		curTime_ = newTime;
 	}
 	
 }
@@ -255,10 +285,22 @@ void Tutor::set_time(double newTime)
 
 void Tutor::reset()
 {
-		//empty the heap
+		
 		
 		//default
 		curTime_ = 0;
+		totalDistance_ = 0;
+		totalTime_ = 0;
+		santionedVehicles_ = 0;
+		
+		//clear maps
+		last_passage.clear();
+		varcoStats_.clear();
+		
+		//svuoto heap
+		heap = std::priority_queue<Event>();
+		//create again the heap
+		createHeap();
 		
 	
 }

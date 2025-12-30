@@ -22,6 +22,12 @@ struct LastPassage {
     double time;
 };
 
+struct VarcoStats
+{
+	int totalVehicles = 0;
+	
+};
+
 
 // Class
 class Tutor
@@ -30,6 +36,15 @@ private:
 	const double limit_ = 130;
 	double curTime_ = 0; // the timeline start at time 0
 	
+	
+	//attributes used for stats - used to compute the average speed 
+	int totalDistance_ = 0;
+	double totalTime_ = 0;
+	int santionedVehicles_ = 0;
+	
+	
+	
+	
     std::string filePassages;
     //it uses a priority queues for the events
     std::priority_queue<Event> heap;
@@ -37,7 +52,8 @@ private:
     //dictionary to store a passed event, of a STILL OPENED ROUTE
     std::unordered_map<std::string, LastPassage> last_passage;
     
-    
+    //used for stats of routes
+    std::unordered_map<int, VarcoStats> varcoStats_;
 
     
 

@@ -4,10 +4,17 @@ int main()
 {
 	
     Tutor tutor("Passages.txt");
+
     
-    tutor.createHeap();
+    tutor.set_time(9000);
+    
     tutor.stats();
-    tutor.set_time(50);
+    
+    tutor.reset();
+    
+    tutor.set_time(9000);
+    
+    tutor.stats();
     
     
 }
