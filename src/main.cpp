@@ -7,7 +7,7 @@ int main()
     
     tutor.createHeap();
     tutor.stats();
-    tutor.processTickets();
+    tutor.set_time(50);
     
     
 }

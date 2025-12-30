@@ -1,5 +1,6 @@
 /home/simone/Desktop/HighwaySimulator/build/CMakeFiles/libTutor.dir
 /home/simone/Desktop/HighwaySimulator/build/CMakeFiles/main.dir
+/home/simone/Desktop/HighwaySimulator/build/CMakeFiles/simulatore.dir
 /home/simone/Desktop/HighwaySimulator/build/CMakeFiles/edit_cache.dir
 /home/simone/Desktop/HighwaySimulator/build/CMakeFiles/rebuild_cache.dir
 /home/simone/Desktop/HighwaySimulator/build/CMakeFiles/list_install_components.dir

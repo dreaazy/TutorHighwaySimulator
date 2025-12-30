@@ -2,6 +2,8 @@
 
 //used a min-heap for managing the events
 //this allows to have O(log n) in extracting the minor time
+//only the set_time can extract from the heap
+//used an unordered_map<plate, LastPassage> to save the last time a car X passed in front of a tutor, so the next time I extract event of car X I can compute it's avg speed
 
 #include "../include/tutor.h"
 #include <iostream>
@@ -22,6 +24,56 @@ Tutor::Tutor(const std::string& file)
 {
 }
 
+
+//process only one event, called inside set_time
+void Tutor::processEvent(Event e)
+{
+	double passedTime = e.time_;
+	int passedKm = e.km_; //this is also the id of the varco
+	std::string passedPlate = e.plate_;
+				
+				
+	//check the car is already passed
+	auto it = last_passage.find(passedPlate);
+				
+	//if it find something it returns the iterator in that position
+	//if not it returns container.end()
+	if(it == last_passage.end())
+	{
+		//the car is not yet passed in from of a tutor
+		last_passage[passedPlate] ={passedKm,passedTime};
+	}
+	else//the car was passed in from of a tutor 
+	{
+		//access with the iterator the LastPassage object as reference
+		LastPassage& last = it->second;
+					
+		//data
+		int kmDone = e.km_ - last.kmVarco;
+		
+		//the time is in seconds
+		double timeDone = e.time_ - last.time; 
+		timeDone = timeDone / 3600;
+		double vMedia = kmDone / timeDone;
+					
+		if(vMedia > limit_)
+		{
+		//to be printed
+		//plate - average velocity - start varco - start time - end varco - end time
+			emit_ticket(passedPlate, vMedia, last.kmVarco, last.time, passedKm, passedTime);
+						
+		}
+		
+		
+		last_passage.erase(it);	
+					
+	}
+	
+				
+				
+}
+
+//process all tickets in the heap 
 void Tutor::processTickets()
 {
 		// first check if the heap is empty
@@ -57,7 +109,9 @@ void Tutor::processTickets()
 					
 					if(vMedia > limit_)
 					{
-						emit_ticket(passedPlate, vMedia);
+						//to be printed
+						//plate - average velocity - start varco - start time - end varco - end time
+						emit_ticket(passedPlate, vMedia, last.kmVarco, last.time, passedKm, passedTime);
 						
 					}
 					else
@@ -152,12 +206,51 @@ void Tutor::stats() const
 }
 
 
-void Tutor::emit_ticket(std::string plate , double speed)
+void Tutor::emit_ticket(const std::string plate,
+                        double speed,
+                        int entrVarco,
+                        double entrTime,
+                        int endVarco,
+                        double endTime)
 {
-	std::cout << "ticket emitted for the car: " << plate << " for going at the speed of: "  << speed << "\n";
+    std::cout << "Plate: " << plate
+              << " | Speed: " << speed << " km/h"
+              << " | Varco Entrata: " << entrVarco << " km"
+              << " at " << entrTime << " sec"
+              << " | Varco Uscita: " << endVarco << " km"
+              << " at " << endTime << " se"
+              << '\n';
 }
 
 
+
+
+void Tutor::set_time(double newTime)
+{
+	//check with current time
+	if(newTime < curTime_)
+	{
+		//error the time inserted cannot be previous of the last one
+		std::cout << "You cannot go back int time";
+		
+	}
+	else
+	{
+		//update the heap to consider the events in the right interval  of time
+		while(!heap.empty() && newTime > heap.top().time_)
+		{	
+			Event e = heap.top();
+			heap.pop();
+			
+			processEvent(e);
+		}
+		
+		//after updated print veichles that have surpassed the speed limit
+		
+		//processTickets(); 
+	}
+	
+}
 
 
 void Tutor::reset()

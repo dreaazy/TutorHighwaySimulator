@@ -187,6 +187,19 @@ main/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
+#=============================================================================
+# Target rules for targets named simulatore
+
+# Build rule for target.
+simulatore: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 simulatore
+.PHONY : simulatore
+
+# fast build rule for target.
+simulatore/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulatore.dir/build.make CMakeFiles/simulatore.dir/build
+.PHONY : simulatore/fast
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -210,6 +223,30 @@ src/main.s: src/main.cpp.s
 src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
+
+src/simulatore.o: src/simulatore.cpp.o
+.PHONY : src/simulatore.o
+
+# target to build an object file
+src/simulatore.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulatore.dir/build.make CMakeFiles/simulatore.dir/src/simulatore.cpp.o
+.PHONY : src/simulatore.cpp.o
+
+src/simulatore.i: src/simulatore.cpp.i
+.PHONY : src/simulatore.i
+
+# target to preprocess a source file
+src/simulatore.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulatore.dir/build.make CMakeFiles/simulatore.dir/src/simulatore.cpp.i
+.PHONY : src/simulatore.cpp.i
+
+src/simulatore.s: src/simulatore.cpp.s
+.PHONY : src/simulatore.s
+
+# target to generate assembly for a file
+src/simulatore.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulatore.dir/build.make CMakeFiles/simulatore.dir/src/simulatore.cpp.s
+.PHONY : src/simulatore.cpp.s
 
 src/tutor.o: src/tutor.cpp.o
 .PHONY : src/tutor.o
@@ -249,9 +286,13 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... libTutor"
 	@echo "... main"
+	@echo "... simulatore"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/simulatore.o"
+	@echo "... src/simulatore.i"
+	@echo "... src/simulatore.s"
 	@echo "... src/tutor.o"
 	@echo "... src/tutor.i"
 	@echo "... src/tutor.s"

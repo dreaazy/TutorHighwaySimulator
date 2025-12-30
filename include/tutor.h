@@ -28,12 +28,13 @@ class Tutor
 {
 private:
 	const double limit_ = 130;
-	double curTime_;
+	double curTime_ = 0; // the timeline start at time 0
 	
     std::string filePassages;
     //it uses a priority queues for the events
     std::priority_queue<Event> heap;
-    //dictionary to store the passed event, used for the ticket
+    
+    //dictionary to store a passed event, of a STILL OPENED ROUTE
     std::unordered_map<std::string, LastPassage> last_passage;
     
     
@@ -45,8 +46,10 @@ public:
     //take the file Passages.txt and create the heap of events
     void createHeap();
     void processTickets();
+    void processEvent(Event e);
     void stats() const;
     void reset();
-    void set_time();
-    void emit_ticket(std::string plate, double speed);
+    //the time taken as parameter must be in seconds
+    void set_time(double t);
+    void emit_ticket(std::string plate, double speed, int entVarco, double entTime, int endVarco, double endTime);
 };

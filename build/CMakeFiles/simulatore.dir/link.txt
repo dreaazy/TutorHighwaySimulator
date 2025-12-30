@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/simulatore.dir/src/simulatore.cpp.o -o simulatore 
