@@ -117,143 +117,148 @@ static std::string generateTarga(int index=-1) {
 }
 
 int main() {
-	const int NUM_AUTO = 1000; // numero di auto da simulare 
+	try {
+		const int NUM_AUTO = 1000; // numero di auto da simulare 
 
-	std::srand(std::time(0)); // inizializzo il generatore di numeri casuali con il tempo attuale
-	
-	std::vector<Nodo> Svincoli;
-	std::vector<Nodo> Varchi; // creo due vector per svincoli e varchi per necessito di accesso casuale agli elementi 
+		std::srand(std::time(0)); // inizializzo il generatore di numeri casuali con il tempo attuale
 
-	std::string myText;
-	std::string pathHighway = std::string(PROJECT_SOURCE_DIR) + "/data/Highway.txt"; // costruisco il path del file Highway.txt
+		std::vector<Nodo> Svincoli;
+		std::vector<Nodo> Varchi; // creo due vector per svincoli e varchi per necessito di accesso casuale agli elementi 
 
-	std::ifstream HighwayFile(pathHighway); // apro il file in lettura
-	if (!HighwayFile.is_open()) { // controllo che il file sia stato aperto correttamente
-		throw std::runtime_error("Impossibile aprire il file Highway.txt");
-	} 
-	std::cout << "File aperto correttamente... Procedo con lettura\n";
-	while (std::getline(HighwayFile, myText)) {
-		char type = myText.back();
-		myText.pop_back(); // rimuovo l'ultimo carattere della riga per ottenere il tipo (V o S)
-		myText.pop_back(); // rimuovo lo spazio prima del tipo
-		double numero;
-		try {
-			numero = std::stod(myText);
+		std::string myText;
+		std::string pathHighway = std::string(PROJECT_SOURCE_DIR) + "/data/Highway.txt"; // costruisco il path del file Highway.txt
+
+		std::ifstream HighwayFile(pathHighway); // apro il file in lettura
+		if (!HighwayFile.is_open()) { // controllo che il file sia stato aperto correttamente
+			throw std::runtime_error("Impossibile aprire il file Highway.txt");
 		}
-		catch (const std::invalid_argument& invalid_argument) {
-			throw std::invalid_argument("Errore: Nel file è presente un argomento non valido per la conversione ad double.");
-		}
-		catch (const std::out_of_range& out_of_range) {
-			throw std::invalid_argument("Errore: Il numero è fuori dal range di double.");
-		}
-
-		if (type == 'V') {
-			Varchi.push_back(Nodo(numero, type));
-		}
-		else if (type == 'S') {
-			Svincoli.push_back(Nodo(numero, type));
-		}
-		else {
-			throw std::invalid_argument("Errore: Tipo non valido nel file. Deve essere V o S.");
-		}
-	} // leggo il file riga per riga e popolo le code di priorità
-
-	std::cout << "File letto correttamente... Numero varchi = "<< Varchi.size() << "; Numero Svincoli = "<< Svincoli.size() <<"; ... Procedo con verifica dei dati\n";
-	std::sort(Svincoli.begin(), Svincoli.end());
-	std::sort(Varchi.begin(), Varchi.end()); // ordino i vettori per km in modo crescente, (la numerazione dei varchi e svincoli è implicita nella posizione nel vettore ordinato)
-	int cV = 0;
-	int cS = 0;
-	if (Varchi.size() < 2) throw std::invalid_argument("Errore: Devono esserci almeno 2 varchi.");
-
-	if (Varchi.at(0).km_ < Svincoli.at(0).km_) throw std::invalid_argument("Errore: Il primo varco deve essere dopo il primo svincolo.");
-
-	if (Varchi.back().km_ > Svincoli.back().km_) throw std::invalid_argument("Errore: L'ultimo varco deve essere prima dell'ultimo svincolo.");
-
-	while (cV < Varchi.size()) {
-		if (abs(Svincoli.at(cS).km_ - Varchi.at(cV).km_) < 1) throw std::invalid_argument("Errore: Esiste uno svincolo e un varco con distanza inferiore ad 1 km.");
-		if (Svincoli.at(cS).km_ < Varchi.at(cV).km_)	cS++; else cV++;
-	}// verifico che non esistano svincoli e varchi con distanza inferiore ad 1 km
-	
-	std::cout << "Verifica completata... Procedo con la simulazione:\n";
-	std::cout << "1 fase: creazione file Runs.txt...\n";
-	std::string pathRuns = std::string(PROJECT_SOURCE_DIR) + "/data/Runs.txt"; // costruisco il path del file Runs.txt
-	std::ofstream RunsFile(pathRuns); // apro il file in scrittura
-	if (!RunsFile.is_open()) { // controllo che il file sia stato aperto correttamente
-		throw std::runtime_error("Impossibile aprire il file Runs.txt");
-	}
-	std::cout << "File creato correttamente...\ngenerazione macchine\n";
-	int autoGenerate = 0;
-	double orario = 0;
-	while (autoGenerate++ < NUM_AUTO) {
-		int ingressoIndex = std::rand() % (Svincoli.size() - 1);
-		int uscitaIndex = std::rand() % (Svincoli.size() - ingressoIndex - 1) + ingressoIndex + 1;
-		double distanzaPercorsa = Svincoli[uscitaIndex].km_ - Svincoli[ingressoIndex].km_;
-		Auto a{ generateTarga(autoGenerate),ingressoIndex,uscitaIndex,orario,distanzaPercorsa };
-		orario += ((std::rand() % 95) + 5) / 10.0;
-		RunsFile << a << std::endl;
-	}
-	std::cout << "Simulazione completata... Procedo con la simulazione dei passaggi nei varchi\n";
-
-	HighwayFile.close();
-	RunsFile.close();
-
-	std::ifstream RunsFileRead(pathRuns);
-	if (!RunsFileRead.is_open()) { // controllo che il file sia stato aperto correttamente
-		throw std::runtime_error("Impossibile aprire il file Runs.txt");
-	}
-	
-	std::string pathPassages = std::string(PROJECT_SOURCE_DIR) + "/data/Passages.txt"; // costruisco il path del file Passages.txt
-	std::ofstream PassagesFile(pathPassages);
-	if (!PassagesFile.is_open()) { // controllo che il file sia stato aperto correttamente
-		throw std::runtime_error("Impossibile aprire il file Runs.txt");
-	}
-	while (std::getline(RunsFileRead, myText)) {
-		std::stringstream run(myText);
-		std::string word;
-		int index = 0;
-		double distanzaPercorsa = 0;
-		double velocita_media = 0;
-		double inizio_intervallo = 0;
-		double velocita_precedente = 0;
-		double inizio_intervallo_precedente = 0;
-		std::string targa;
-		int ingresso;
-		while (run >> word) {
-			if (index == 0)
-				targa = word;
-			if (index == 1)
-				ingresso = std::stoi(word);
-			if (index == 2)
-				int uscita = std::stoi(word);
-			if (index == 3)
-				double orario_ingresso = std::stod(word);
-			if (index > 4) {
-				velocita_precedente = velocita_media;
-				inizio_intervallo_precedente = inizio_intervallo;
+		std::cout << "File aperto correttamente... Procedo con lettura\n";
+		while (std::getline(HighwayFile, myText)) {
+			char type = myText.back();
+			myText.pop_back(); // rimuovo l'ultimo carattere della riga per ottenere il tipo (V o S)
+			myText.pop_back(); // rimuovo lo spazio prima del tipo
+			double numero;
+			try {
+				numero = std::stod(myText);
 			}
-			if (index > 3) {
-				velocita_media = std::stod(word);
-				run >> word;
-				word = word.substr(0, word.length() - 1);
-				inizio_intervallo = std::stod(word);
+			catch (const std::invalid_argument& invalid_argument) {
+				throw std::invalid_argument("Errore: Nel file è presente un argomento non valido per la conversione ad double.");
 			}
-			if (index>4) {
-				double delta_km = (velocita_precedente * ((inizio_intervallo - inizio_intervallo_precedente) / 3600.0));
-				distanzaPercorsa += delta_km;
-				for (int v = 0; v < Varchi.size(); v++) {
-					if (distanzaPercorsa + Svincoli[ingresso].km_ >= Varchi[v].km_ && distanzaPercorsa + Svincoli[ingresso].km_ - delta_km < Varchi[v].km_) { // se l'auto ha superato il varco in questo intervallo
-						double istante_passaggio = inizio_intervallo_precedente + (((Varchi[v].km_ - (distanzaPercorsa - delta_km + Svincoli[ingresso].km_)) / velocita_precedente) * 3600.0);
-						PassagesFile << v << " " << targa << " " << istante_passaggio << '\n';
-					}	
+			catch (const std::out_of_range& out_of_range) {
+				throw std::invalid_argument("Errore: Il numero è fuori dal range di double.");
+			}
+
+			if (type == 'V') {
+				Varchi.push_back(Nodo(numero, type));
+			}
+			else if (type == 'S') {
+				Svincoli.push_back(Nodo(numero, type));
+			}
+			else {
+				throw std::invalid_argument("Errore: Tipo non valido nel file. Deve essere V o S.");
+			}
+		} // leggo il file riga per riga e popolo le code di priorità
+
+		std::cout << "File letto correttamente... Numero varchi = " << Varchi.size() << "; Numero Svincoli = " << Svincoli.size() << "; ... Procedo con verifica dei dati\n";
+		std::sort(Svincoli.begin(), Svincoli.end());
+		std::sort(Varchi.begin(), Varchi.end()); // ordino i vettori per km in modo crescente, (la numerazione dei varchi e svincoli è implicita nella posizione nel vettore ordinato)
+		int cV = 0;
+		int cS = 0;
+		if (Varchi.size() < 2) throw std::invalid_argument("Errore: Devono esserci almeno 2 varchi.");
+
+		if (Varchi.at(0).km_ < Svincoli.at(0).km_) throw std::invalid_argument("Errore: Il primo varco deve essere dopo il primo svincolo.");
+
+		if (Varchi.back().km_ > Svincoli.back().km_) throw std::invalid_argument("Errore: L'ultimo varco deve essere prima dell'ultimo svincolo.");
+
+		while (cV < Varchi.size()) {
+			if (abs(Svincoli.at(cS).km_ - Varchi.at(cV).km_) < 1) throw std::invalid_argument("Errore: Esiste uno svincolo e un varco con distanza inferiore ad 1 km.");
+			if (Svincoli.at(cS).km_ < Varchi.at(cV).km_)	cS++; else cV++;
+		}// verifico che non esistano svincoli e varchi con distanza inferiore ad 1 km
+
+		std::cout << "Verifica completata... Procedo con la simulazione:\n";
+		std::cout << "1 fase: creazione file Runs.txt...\n";
+		std::string pathRuns = std::string(PROJECT_SOURCE_DIR) + "/data/Runs.txt"; // costruisco il path del file Runs.txt
+		std::ofstream RunsFile(pathRuns); // apro il file in scrittura
+		if (!RunsFile.is_open()) { // controllo che il file sia stato aperto correttamente
+			throw std::runtime_error("Impossibile aprire il file Runs.txt");
+		}
+		std::cout << "File creato correttamente...\ngenerazione macchine\n";
+		int autoGenerate = 0;
+		double orario = 0;
+		while (autoGenerate++ < NUM_AUTO) {
+			int ingressoIndex = std::rand() % (Svincoli.size() - 1);
+			int uscitaIndex = std::rand() % (Svincoli.size() - ingressoIndex - 1) + ingressoIndex + 1;
+			double distanzaPercorsa = Svincoli[uscitaIndex].km_ - Svincoli[ingressoIndex].km_;
+			Auto a{ generateTarga(autoGenerate),ingressoIndex,uscitaIndex,orario,distanzaPercorsa };
+			orario += ((std::rand() % 95) + 5) / 10.0;
+			RunsFile << a << std::endl;
+		}
+		std::cout << "Simulazione completata... Procedo con la simulazione dei passaggi nei varchi\n";
+
+		HighwayFile.close();
+		RunsFile.close();
+
+		std::ifstream RunsFileRead(pathRuns);
+		if (!RunsFileRead.is_open()) { // controllo che il file sia stato aperto correttamente
+			throw std::runtime_error("Impossibile aprire il file Runs.txt");
+		}
+
+		std::string pathPassages = std::string(PROJECT_SOURCE_DIR) + "/data/Passages.txt"; // costruisco il path del file Passages.txt
+		std::ofstream PassagesFile(pathPassages);
+		if (!PassagesFile.is_open()) { // controllo che il file sia stato aperto correttamente
+			throw std::runtime_error("Impossibile aprire il file Runs.txt");
+		}
+		while (std::getline(RunsFileRead, myText)) {
+			std::stringstream run(myText);
+			std::string word;
+			int index = 0;
+			double distanzaPercorsa = 0;
+			double velocita_media = 0;
+			double inizio_intervallo = 0;
+			double velocita_precedente = 0;
+			double inizio_intervallo_precedente = 0;
+			std::string targa;
+			int ingresso;
+			while (run >> word) {
+				if (index == 0)
+					targa = word;
+				if (index == 1)
+					ingresso = std::stoi(word);
+				if (index == 2)
+					int uscita = std::stoi(word);
+				if (index == 3)
+					double orario_ingresso = std::stod(word);
+				if (index > 4) {
+					velocita_precedente = velocita_media;
+					inizio_intervallo_precedente = inizio_intervallo;
 				}
+				if (index > 3) {
+					velocita_media = std::stod(word);
+					run >> word;
+					word = word.substr(0, word.length() - 1);
+					inizio_intervallo = std::stod(word);
+				}
+				if (index > 4) {
+					double delta_km = (velocita_precedente * ((inizio_intervallo - inizio_intervallo_precedente) / 3600.0));
+					distanzaPercorsa += delta_km;
+					for (int v = 0; v < Varchi.size(); v++) {
+						if (distanzaPercorsa + Svincoli[ingresso].km_ >= Varchi[v].km_ && distanzaPercorsa + Svincoli[ingresso].km_ - delta_km < Varchi[v].km_) { // se l'auto ha superato il varco in questo intervallo
+							double istante_passaggio = inizio_intervallo_precedente + (((Varchi[v].km_ - (distanzaPercorsa - delta_km + Svincoli[ingresso].km_)) / velocita_precedente) * 3600.0);
+							PassagesFile << v << " " << targa << " " << istante_passaggio << '\n';
+						}
+					}
+				}
+				index++;
 			}
-			index++;
 		}
-	}
-	
-	std::cout << "Simulazione completata con successo\n";
 
-	RunsFileRead.close();
-	
+		std::cout << "Simulazione completata con successo\n";
+
+		RunsFileRead.close();
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Errore: " << e.what() << std::endl;
+		return -1;
+	}
 	return 0;
 }
