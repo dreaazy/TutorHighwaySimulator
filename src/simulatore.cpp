@@ -133,19 +133,17 @@ int main() {
 			throw std::runtime_error("Impossibile aprire il file Highway.txt");
 		}
 		std::cout << "File aperto correttamente... Procedo con lettura\n";
+		
 		while (std::getline(HighwayFile, myText)) {
-			char type = myText.back();
-			myText.pop_back(); // rimuovo l'ultimo carattere della riga per ottenere il tipo (V o S)
-			myText.pop_back(); // rimuovo lo spazio prima del tipo
+
+			std::stringstream ss(myText); // uso stringstream per evitare problemi con spazi e \r
 			double numero;
-			try {
-				numero = std::stod(myText);
-			}
-			catch (const std::invalid_argument& invalid_argument) {
-				throw std::invalid_argument("Errore: Nel file è presente un argomento non valido per la conversione ad double.");
-			}
-			catch (const std::out_of_range& out_of_range) {
-				throw std::invalid_argument("Errore: Il numero è fuori dal range di double.");
+			char type;
+
+			ss >> numero >> type; // leggo numero e tipo (V o S)
+
+			if (!ss || (type != 'V' && type != 'S')) {
+				throw std::invalid_argument("Errore: Tipo non valido nel file. Deve essere V o S.");
 			}
 
 			if (type == 'V') {
@@ -154,10 +152,8 @@ int main() {
 			else if (type == 'S') {
 				Svincoli.push_back(Nodo(numero, type));
 			}
-			else {
-				throw std::invalid_argument("Errore: Tipo non valido nel file. Deve essere V o S.");
-			}
 		} // leggo il file riga per riga e popolo le code di priorità
+
 
 		std::cout << "File letto correttamente... Numero varchi = " << Varchi.size() << "; Numero Svincoli = " << Svincoli.size() << "; ... Procedo con verifica dei dati\n";
 		std::sort(Svincoli.begin(), Svincoli.end());
@@ -244,7 +240,7 @@ int main() {
 					for (int v = 0; v < Varchi.size(); v++) {
 						if (distanzaPercorsa + Svincoli[ingresso].km_ >= Varchi[v].km_ && distanzaPercorsa + Svincoli[ingresso].km_ - delta_km < Varchi[v].km_) { // se l'auto ha superato il varco in questo intervallo
 							double istante_passaggio = inizio_intervallo_precedente + (((Varchi[v].km_ - (distanzaPercorsa - delta_km + Svincoli[ingresso].km_)) / velocita_precedente) * 3600.0);
-							PassagesFile << v << " " << targa << " " << istante_passaggio << '\n';
+							PassagesFile << Varchi[v].km_ << " " << targa << " " << istante_passaggio << '\n';
 						}
 					}
 				}

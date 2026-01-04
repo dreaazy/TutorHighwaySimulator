@@ -7,7 +7,7 @@
 // used for knowing who passes, where and when
 struct Event
 {
-	int km_; //id of the varco
+	double km_; //id of the varco
 	std::string plate_; //plate of the veichle
     double time_;
     
@@ -61,7 +61,6 @@ public:
     explicit Tutor(const std::string& file);
     //take the file Passages.txt and create the heap of events
     void createHeap();
-    void processTickets();
     void processEvent(Event e);
     void stats() const;
     void reset();

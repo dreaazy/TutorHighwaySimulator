@@ -128,6 +128,7 @@ CMakeFiles/simulatore.dir/src/simulatore.cpp.o: /home/simone/Desktop/HighwaySimu
   /usr/include/c++/13/bits/range_access.h \
   /usr/include/c++/13/bits/refwrap.h \
   /usr/include/c++/13/bits/requires_hosted.h \
+  /usr/include/c++/13/bits/sstream.tcc \
   /usr/include/c++/13/bits/std_abs.h \
   /usr/include/c++/13/bits/stl_algo.h \
   /usr/include/c++/13/bits/stl_algobase.h \
@@ -177,6 +178,7 @@ CMakeFiles/simulatore.dir/src/simulatore.cpp.o: /home/simone/Desktop/HighwaySimu
   /usr/include/c++/13/new \
   /usr/include/c++/13/ostream \
   /usr/include/c++/13/queue \
+  /usr/include/c++/13/sstream \
   /usr/include/c++/13/stdexcept \
   /usr/include/c++/13/streambuf \
   /usr/include/c++/13/string \
@@ -223,6 +225,8 @@ CMakeFiles/simulatore.dir/src/simulatore.cpp.o: /home/simone/Desktop/HighwaySimu
 
 /usr/include/c++/13/stdexcept:
 
+/usr/include/c++/13/sstream:
+
 /usr/include/c++/13/istream:
 
 /usr/include/c++/13/iostream:
@@ -236,8 +240,6 @@ CMakeFiles/simulatore.dir/src/simulatore.cpp.o: /home/simone/Desktop/HighwaySimu
 /usr/include/c++/13/exception:
 
 /usr/include/c++/13/debug/assertions.h:
-
-/usr/include/c++/13/cwctype:
 
 /usr/include/c++/13/cstdlib:
 
@@ -280,6 +282,10 @@ CMakeFiles/simulatore.dir/src/simulatore.cpp.o: /home/simone/Desktop/HighwaySimu
 /usr/include/c++/13/bits/stl_deque.h:
 
 /usr/include/c++/13/bits/stl_algobase.h:
+
+/usr/include/c++/13/cwctype:
+
+/usr/include/c++/13/bits/sstream.tcc:
 
 /usr/include/aarch64-linux-gnu/bits/uintn-identity.h:
 

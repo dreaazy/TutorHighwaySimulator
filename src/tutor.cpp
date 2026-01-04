@@ -86,61 +86,6 @@ void Tutor::processEvent(Event e)
 				
 }
 
-//process all tickets in the heap 
-void Tutor::processTickets()
-{
-		// first check if the heap is empty
-		
-		while(!heap.empty())
-		{
-				Event e = heap.top();
-				heap.pop();
-				double passedTime = e.time_;
-				int passedKm = e.km_; //this is also the id of the varco
-				std::string passedPlate = e.plate_;
-				
-				
-				//check the car is already passed
-				auto it = last_passage.find(passedPlate);
-				
-				//if it find something it returns the iterator in that position
-				//if not it returns container.end()
-				if(it == last_passage.end())
-				{
-						//the car is not yet passed in from of a tutor
-						last_passage[passedPlate] ={passedKm,passedTime};
-				}
-				else//the car was passed in from of a tutor 
-				{
-					//access with the iterator the LastPassage object as reference
-					LastPassage& last = it->second;
-					
-					//data
-					int kmDone = e.km_ - last.kmVarco;
-					double timeDone = e.time_ - last.time;
-					double vMedia = kmDone / timeDone;
-					
-					if(vMedia > limit_)
-					{
-						//to be printed
-						//plate - average velocity - start varco - start time - end varco - end time
-						emit_ticket(passedPlate, vMedia, last.kmVarco, last.time, passedKm, passedTime);
-						
-					}
-					else
-					{
-							last = {passedKm, passedTime};
-					}
-					
-					
-				}
-				
-			
-		}
-	
-}
-
-//create the heap of events
 void Tutor::createHeap()
 {
     std::ifstream file("../data/" + filePassages);
@@ -155,10 +100,6 @@ void Tutor::createHeap()
     // the line (should be) as follows: <varco> <targa> <istante passaggio>
     std::string line;
     
-    double time; // time of the event
-    std::string plate;
-    
-    
     char delimiter = ' '; // space according to the text
 	
 	// helper for feedback to the user in case of error
@@ -166,45 +107,46 @@ void Tutor::createHeap()
 	
     while (std::getline(file, line))
     {
-		//i use the istring to take the values from the file
+		// i use the istring to take the values from the file
         std::istringstream iss(line);
         
-        //take varco
-        int kmVarco;
-        if(!(iss >> kmVarco))
+        // take varco
+        double kmVarco; 
+        if (!(iss >> kmVarco))
         {
-				std::cerr << lineCount << " row: The first value of the line is not an integer \n";
-				continue;
-		}
+            std::cerr << lineCount << " row: The first value of the line is not a double\n";
+            lineCount++;
+            continue;
+        }
 		
-		//take plate of the veichle
+		// take plate of the vehicle
 		std::string plate;
-		if(!(iss >> plate) || plate.size() != 7)
+		if (!(iss >> plate) || plate.size() != 7)
         {
-				std::cerr << lineCount << " row: The second value of the line has not 7 characters \n";
-				continue;
+            std::cerr << lineCount << " row: The second value of the line has not 7 characters\n";
+            lineCount++;
+            continue;
 		}
 		
-		//take the time the vehicle passes on the varco
+		// take the time the vehicle passes on the varco
 		double time;
-		if (!(iss >> time)) {
-			std::cerr << lineCount <<" row: Invalid time: not a double in row \n";
+		if (!(iss >> time))
+        {
+			std::cerr << lineCount << " row: Invalid time: not a double\n";
+			lineCount++;
 			continue; 
 		}
 		
-		
-		//create the Event
-		
+		// create the Event
 		Event e {kmVarco, plate, time};
 		
-		
-		//push the Event on the heap of events
+		// push the Event on the heap of events
 		heap.push(e);
 		
 		lineCount++;
-		
     }
 }
+
 
 
 void Tutor::stats() const

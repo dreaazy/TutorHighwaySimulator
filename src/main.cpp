@@ -6,13 +6,7 @@ int main()
     Tutor tutor("Passages.txt");
 
     
-    tutor.set_time(9000);
-    
-    tutor.stats();
-    
-    tutor.reset();
-    
-    tutor.set_time(9000);
+    tutor.set_time(3000);
     
     tutor.stats();
     
