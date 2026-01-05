@@ -16,6 +16,11 @@ struct Station {
     double position; // Position in km from origin - should be >= 0.
     char type;       // 'V' or 'S'.
     int id;          // ID starting from 1, separate for gates and junctions.
+    //To sort stations
+    bool operator <(const Station& other) const
+    {
+			return position < other.position;
+	}
 };
 
 // Class for the highway - loads from file, sorts, assigns IDs, and checks validity.

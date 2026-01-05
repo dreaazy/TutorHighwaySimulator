@@ -200,6 +200,30 @@ simulatore/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulatore.dir/build.make CMakeFiles/simulatore.dir/build
 .PHONY : simulatore/fast
 
+src/Highway.o: src/Highway.cpp.o
+.PHONY : src/Highway.o
+
+# target to build an object file
+src/Highway.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libTutor.dir/build.make CMakeFiles/libTutor.dir/src/Highway.cpp.o
+.PHONY : src/Highway.cpp.o
+
+src/Highway.i: src/Highway.cpp.i
+.PHONY : src/Highway.i
+
+# target to preprocess a source file
+src/Highway.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libTutor.dir/build.make CMakeFiles/libTutor.dir/src/Highway.cpp.i
+.PHONY : src/Highway.cpp.i
+
+src/Highway.s: src/Highway.cpp.s
+.PHONY : src/Highway.s
+
+# target to generate assembly for a file
+src/Highway.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libTutor.dir/build.make CMakeFiles/libTutor.dir/src/Highway.cpp.s
+.PHONY : src/Highway.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -287,6 +311,9 @@ help:
 	@echo "... libTutor"
 	@echo "... main"
 	@echo "... simulatore"
+	@echo "... src/Highway.o"
+	@echo "... src/Highway.i"
+	@echo "... src/Highway.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

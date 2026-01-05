@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/libTutor.dir/src/Highway.cpp.o"
+  "CMakeFiles/libTutor.dir/src/Highway.cpp.o.d"
   "CMakeFiles/libTutor.dir/src/tutor.cpp.o"
   "CMakeFiles/libTutor.dir/src/tutor.cpp.o.d"
   "liblibTutor.pdb"

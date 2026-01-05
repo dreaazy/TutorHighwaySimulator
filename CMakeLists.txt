@@ -11,6 +11,7 @@ add_definitions(-DPROJECT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_library(libTutor SHARED
     src/tutor.cpp
+    src/Highway.cpp
 )
 
 add_library(${PROJECT_NAME} INTERFACE)

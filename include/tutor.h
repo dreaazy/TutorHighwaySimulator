@@ -1,13 +1,18 @@
 //Author: Simone Piccinini
 
+#include "./array_view.h"
+
 #include <string>
 #include <queue>
 #include <unordered_map>
+#include <vector>
+
+#include "../include/Highway.h"
 
 // used for knowing who passes, where and when
 struct Event
 {
-	double km_; //id of the varco
+	int id; //id of the varco
 	std::string plate_; //plate of the veichle
     double time_;
     
@@ -18,7 +23,7 @@ struct Event
 
 //stored information for the ticket
 struct LastPassage {
-    int kmVarco; //this is the km
+    int id; //this is the km
     double time;
 };
 
@@ -30,6 +35,9 @@ struct VarcoStats
 
 
 // Class
+
+
+
 class Tutor
 {
 private:
@@ -42,16 +50,16 @@ private:
 	double totalTime_ = 0;
 	int santionedVehicles_ = 0;
 	
-	
+	//stations
+	std::vector<Station> stationStorage_; // owns data
+	ArrayView<Station> stations_; // view
 	
 	
     std::string filePassages;
     //it uses a priority queues for the events
     std::priority_queue<Event> heap;
-    
     //dictionary to store a passed event, of a STILL OPENED ROUTE
     std::unordered_map<std::string, LastPassage> last_passage;
-    
     //used for stats of routes
     std::unordered_map<int, VarcoStats> varcoStats_;
 
@@ -67,4 +75,5 @@ public:
     //the time taken as parameter must be in seconds
     void set_time(double t);
     void emit_ticket(std::string plate, double speed, int entVarco, double entTime, int endVarco, double endTime);
+    
 };

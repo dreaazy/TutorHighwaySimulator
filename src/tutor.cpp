@@ -6,10 +6,13 @@
 //used an unordered_map<plate, LastPassage> to save the last time a car X passed in front of a tutor, so the next time I extract event of car X I can compute it's avg speed
 
 #include "../include/tutor.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <algorithm>
+
 
 // I want a min heap, because I want to extract before the smallest event
 // priority queue uses < to compare elements, according to time
@@ -19,10 +22,21 @@ bool Event::operator<(const Event& other) const
 }
 
 // tutor constructor
-Tutor::Tutor(const std::string& file)
-    : filePassages(file)
+Tutor::Tutor(const std::string& file) : filePassages(file)
 {
+	//read highway and populate the Stations' array, using ArrayView for controlled access
+	
+	//take the stations from file
+	Highway hw;
+	stationStorage_ = hw.getStations();
+	//sort them
+	std::sort(stationStorage_.begin(), stationStorage_.end());
+	stations_ = ArrayView<Station>(stationStorage_.data(), static_cast<int>(stationStorage_.size()));
+	
+	//create heap of events from passages
 	createHeap();
+	
+	
 }
 
 
@@ -30,36 +44,52 @@ Tutor::Tutor(const std::string& file)
 void Tutor::processEvent(Event e)
 {
 	//update stats of varco
-	varcoStats_[e.km_].totalVehicles++;
+	varcoStats_[e.id].totalVehicles++;
 	
-	double passedTime = e.time_;
-	int passedKm = e.km_; //this is also the id of the varco
-	std::string passedPlate = e.plate_;
+	//take data of the car that JUST PASSED THE STATION
+	double currentTime = e.time_;
+	std::string currentPlate = e.plate_;
+	
+	//get the km of the station from the station id
+	const Station& currentStation = stations_[e.id];
+	double currentKmStation = currentStation.position;
+	
 				
 				
 	//check the car is already passed
-	auto it = last_passage.find(passedPlate);
+	auto it = last_passage.find(currentPlate);
 				
 	//if it find something it returns the iterator in that position
 	//if not it returns container.end()
 	if(it == last_passage.end())
 	{
-		//the car is not yet passed in from of a tutor
-		last_passage[passedPlate] ={passedKm,passedTime};
+		//take the id of the station
+		
+		//the car is not yet passed in from of a tutor, insert in the dictionary
+		last_passage[currentPlate] ={e.id,currentTime};
 	}
 	else//the car was passed in from of a tutor 
 	{
 		//access with the iterator the LastPassage object as reference
-		LastPassage& last = it->second;
-					
+		LastPassage& previous = it->second;
+		
+		//taking km of previous station
+		const Station& previousStation = stations_[previous.id];
+		double previousKmStation = previousStation.position;
+		//taking time
+		double previousTime = previous.time;
+		
+			
 		//data
-		int kmDone = std::abs(e.km_ - last.kmVarco);
+		double space = std::abs(currentKmStation - previousKmStation);
 		
 		//the time is in seconds
-		double timeDone = e.time_ - last.time; 
-		timeDone = timeDone / 3600;
+		double time = std::abs(currentTime - previousTime); 
 		
-		double vMedia = kmDone / timeDone;
+		//convert to hours
+		time = time / 3600;
+		
+		double vMedia = space / time;
 					
 		if(vMedia > limit_)
 		{
@@ -68,14 +98,14 @@ void Tutor::processEvent(Event e)
 			
 		//to be printed
 		//plate - average velocity - start varco - start time - end varco - end time
-			emit_ticket(passedPlate, vMedia, last.kmVarco, last.time, passedKm, passedTime);
+			emit_ticket(currentPlate, vMedia, previousKmStation, previousTime, currentKmStation, currentTime);
 						
 		}
 		
 		
 		//update the total time and total distance
-		totalTime_ += timeDone;
-		totalDistance_ +=kmDone;
+		totalTime_ += time;
+		totalDistance_ +=space;
 		
 		
 		last_passage.erase(it);	
@@ -110,11 +140,11 @@ void Tutor::createHeap()
 		// i use the istring to take the values from the file
         std::istringstream iss(line);
         
-        // take varco
-        double kmVarco; 
-        if (!(iss >> kmVarco))
+        // id of the varco
+        int id;
+        if (!(iss >> id))
         {
-            std::cerr << lineCount << " row: The first value of the line is not a double\n";
+            std::cerr << lineCount << " row: The first value of the line is not a int\n";
             lineCount++;
             continue;
         }
@@ -138,7 +168,7 @@ void Tutor::createHeap()
 		}
 		
 		// create the Event
-		Event e {kmVarco, plate, time};
+		Event e {id, plate, time};
 		
 		// push the Event on the heap of events
 		heap.push(e);
@@ -246,3 +276,5 @@ void Tutor::reset()
 		
 	
 }
+
+

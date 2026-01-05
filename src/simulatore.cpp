@@ -240,7 +240,7 @@ int main() {
 					for (int v = 0; v < Varchi.size(); v++) {
 						if (distanzaPercorsa + Svincoli[ingresso].km_ >= Varchi[v].km_ && distanzaPercorsa + Svincoli[ingresso].km_ - delta_km < Varchi[v].km_) { // se l'auto ha superato il varco in questo intervallo
 							double istante_passaggio = inizio_intervallo_precedente + (((Varchi[v].km_ - (distanzaPercorsa - delta_km + Svincoli[ingresso].km_)) / velocita_precedente) * 3600.0);
-							PassagesFile << Varchi[v].km_ << " " << targa << " " << istante_passaggio << '\n';
+							PassagesFile << v << " " << targa << " " << istante_passaggio << '\n';
 						}
 					}
 				}

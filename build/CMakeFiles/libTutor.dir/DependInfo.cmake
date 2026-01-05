@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/simone/Desktop/HighwaySimulator/src/Highway.cpp" "CMakeFiles/libTutor.dir/src/Highway.cpp.o" "gcc" "CMakeFiles/libTutor.dir/src/Highway.cpp.o.d"
   "/home/simone/Desktop/HighwaySimulator/src/tutor.cpp" "CMakeFiles/libTutor.dir/src/tutor.cpp.o" "gcc" "CMakeFiles/libTutor.dir/src/tutor.cpp.o.d"
   )
 
