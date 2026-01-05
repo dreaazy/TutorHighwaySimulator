@@ -73,7 +73,7 @@ public:
     void stats() const;
     void reset();
     //the time taken as parameter must be in seconds
-    void set_time(double t);
+    void set_time(const std::string& t);
     void emit_ticket(std::string plate, double speed, int entVarco, double entTime, int endVarco, double endTime);
     
 };

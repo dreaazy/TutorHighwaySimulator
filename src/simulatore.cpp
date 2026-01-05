@@ -118,7 +118,7 @@ static std::string generateTarga(int index=-1) {
 
 int main() {
 	try {
-		const int NUM_AUTO = 1000; // numero di auto da simulare 
+		const int NUM_AUTO = 10000; // numero di auto da simulare 
 
 		std::srand(std::time(0)); // inizializzo il generatore di numeri casuali con il tempo attuale
 

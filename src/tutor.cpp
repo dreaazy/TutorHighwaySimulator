@@ -28,9 +28,8 @@ Tutor::Tutor(const std::string& file) : filePassages(file)
 	
 	//take the stations from file
 	Highway hw;
-	stationStorage_ = hw.getStations();
-	//sort them
-	std::sort(stationStorage_.begin(), stationStorage_.end());
+	stationStorage_ = hw.getGates();
+
 	stations_ = ArrayView<Station>(stationStorage_.data(), static_cast<int>(stationStorage_.size()));
 	
 	//create heap of events from passages
@@ -223,36 +222,47 @@ void Tutor::emit_ticket(const std::string plate,
 
 
 
-void Tutor::set_time(double newTime)
+void Tutor::set_time(const std::string& stringTime)
 {
-	//for better reading
-	std::cout << "---------------------------------------------------" <<"\n";
-	//check with current time
-	if(newTime < curTime_)
-	{
-		//error the time inserted cannot be previous of the last one
-		std::cout << "You cannot go back int time";
-		
-	}
-	else
-	{
-		//update the heap to consider the events in the right interval  of time
-		while(!heap.empty() && newTime > heap.top().time_)
-		{	
-			Event e = heap.top();
-			heap.pop();
-			
-			processEvent(e);
-		}
-		
-		//after updated print veichles that have surpassed the speed limit
-		
-		//processTickets(); 
-		
-		curTime_ = newTime;
-	}
-	
+    // compute new time
+    double newTime;
+
+    if (stringTime.empty()) 
+        throw std::invalid_argument("Empty time string");
+
+    if (stringTime.back() == 'm') {  // minutes
+        std::string numPart = stringTime.substr(0, stringTime.size() - 1);
+        double minutes = std::stod(numPart);
+        newTime = minutes * 60.0;    // convert to seconds
+    } else {                         // seconds
+        newTime = std::stod(stringTime);
+    }
+
+    // for better reading
+    std::cout << "---------------------------------------------------" << "\n";
+
+    // check with current time
+    if (newTime < curTime_)
+    {
+        std::cout << "You cannot go back in time\n";
+        return;
+    }
+
+    // update the heap to consider the events in the right interval of time
+    while (!heap.empty() && newTime > heap.top().time_)
+    {   
+        Event e = heap.top();
+        heap.pop();
+
+        processEvent(e);
+    }
+
+    // after updated, print vehicles that have surpassed the speed limit
+    // processTickets(); 
+
+    curTime_ = newTime;
 }
+
 
 
 void Tutor::reset()
