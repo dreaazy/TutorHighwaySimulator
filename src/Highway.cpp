@@ -28,7 +28,10 @@ Highway::Highway(const std::string& filename)
     while (std::getline(file, line))
     {
         line_number++;
+        
+        // If the file has comments or empty lines...
         if (line.empty() || line[0] == '#') continue;
+        
         // Turn the line into a stream (For reading the km value and the type)
         std::istringstream iss(line);
         double km;
@@ -37,27 +40,30 @@ Highway::Highway(const std::string& filename)
         // Try to read km and type from the line
         if (!(iss >> km >> type))
         {
-            std::cerr << "Line " << line_number << ": invalid format, skipped" << std::endl;
-            continue;
+            std::cerr << "Line " << line_number << ": invalid format" << std::endl;
+            std::exit(1);
         }
         if (km < 0)
         {
-            std::cerr << "Line " << line_number << ": negative km, skipped" << std::endl;
-            continue;
+            std::cerr << "Line " << line_number << ": negative km" << std::endl;
+            std::exit(1);
         }
+        
+        //GATE & JUNCTION defined in Highway.h
         if (type != GATE && type != JUNCTION)
         {
-            std::cerr << "Line " << line_number << ": invalid type, skipped" << std::endl;
-            continue;
+            std::cerr << "Line " << line_number << ": invalid type" << std::endl;
+            std::exit(1);
         }
        
         // Valid Format
         temp.push_back({km, type});
     }
-    // Sort by km position
+    // Sort by km position O(n log n)
     std::sort(temp.begin(), temp.end());
     
     // Check for duplicate positions (Check that at each km there is at most one gate and one junction)
+    // O(n)
     for (size_t i = 0; i < temp.size(); )
     {
         double km = temp[i].first;
@@ -72,7 +78,7 @@ Highway::Highway(const std::string& filename)
             else
                 junctions++;
         }
-        // Error = Two or more of the same 
+        // Two or more of the same type at the current km
         if (gates > 1 || junctions > 1)
         {
             std::cerr << "Error: multiple stations of the same type at km " << km << std::endl;
@@ -90,11 +96,13 @@ Highway::Highway(const std::string& filename)
         s.type = p.second;
         stations.push_back(s);
     }
+    
     if (stations.empty())
     {
         std::cerr << "Error: no valid stations found" << std::endl;
         std::exit(1);
     }
+    
     // IDs setter
     int gate_count = 1;
     int junction_count = 1;
@@ -135,11 +143,13 @@ Highway::Highway(const std::string& filename)
             if (s.position > last_gate) junction_after = true;
         }
     }
+    
     if (!junction_before || !junction_after)
     {
         std::cerr << "Error: missing junction before first gate or after last gate" << std::endl;
         std::exit(1);
     }
+    
     // Rule 3: minimum 1 km between gate and junction (check consecutive different types)
     for (size_t i = 1; i < stations.size(); ++i)
     {
@@ -147,7 +157,7 @@ Highway::Highway(const std::string& filename)
         {
             if (stations[i].position - stations[i-1].position < 1.0)
             {
-                std::cerr << "Error: distance less than 1 km between "
+                std::cerr << "Error: distance from V and S less than 1km"
                           << stations[i-1].position << " (" << stations[i-1].type << ") and "
                           << stations[i].position << " (" << stations[i].type << ")" << std::endl;
                 std::exit(1);
@@ -155,10 +165,12 @@ Highway::Highway(const std::string& filename)
         }
     }
 }
+
 const std::vector<Station>& Highway::getStations() const
 {
     return stations;
 }
+
 const Station* Highway::findClosestStation(double km) const
 {
     if (stations.empty()) return nullptr;
@@ -175,6 +187,7 @@ const Station* Highway::findClosestStation(double km) const
     }
     return closest;
 }
+
 std::vector<Station> Highway::getGates() const
 {
     std::vector<Station> gates;
@@ -184,6 +197,7 @@ std::vector<Station> Highway::getGates() const
     }
     return gates;
 }
+
 std::vector<Station> Highway::getJunctions() const
 {
     std::vector<Station> junctions;
@@ -193,3 +207,4 @@ std::vector<Station> Highway::getJunctions() const
     }
     return junctions;
 }
+
