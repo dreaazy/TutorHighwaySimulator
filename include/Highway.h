@@ -1,4 +1,3 @@
-// Highway.h - Header file for the Highway class.
 // Author: Emanuel Huber
 
 #ifndef HIGHWAY_H
