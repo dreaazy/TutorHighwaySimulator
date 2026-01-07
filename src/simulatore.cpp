@@ -8,6 +8,7 @@
 #include <queue>
 #include <algorithm>
 #include <sstream>
+#include "Highway.h"
 
 struct tratto {// creo una struttura per rappresentare un tratto di strada con velocità media e inizio intervallo
 		double inizio_intervallo_;
@@ -73,19 +74,6 @@ struct Auto { // creo una struttura per rappresentare un'auto con targa, ingress
 	}
 };
 
-struct Nodo { // struttura per rappresentare un VARCO oppure uno SVINCOLO e la distanza in km dalla partenza
-	double km_;
-	char tipo_;
-
-	Nodo(double km, char tipo) : km_{ km }, tipo_{ tipo } {
-		if (tipo != 'V' && tipo != 'S')
-			throw std::invalid_argument("Tipo deve essere V o S.");
-	}
-
-	bool operator<(const Nodo& other) const { // overload dell'operatore di confronto per la priority queue, in modo da avere un min heap
-		return km_ < other.km_;
-	}
-};
 
 /* funzione per generare una targa casuale se non inserito alcun parametro (oppure -1) con probabilità teorica 
 	di generare 2 targhe identiche = 2,19*10^-9 %); ALtrimenti restituisce una targa basata sull'indice passato come parametro */
@@ -122,57 +110,18 @@ int main() {
 
 		std::srand(std::time(0)); // inizializzo il generatore di numeri casuali con il tempo attuale
 
-		std::vector<Nodo> Svincoli;
-		std::vector<Nodo> Varchi; // creo due vector per svincoli e varchi per necessito di accesso casuale agli elementi 
+		std::vector<Station> Svincoli;
+		std::vector<Station> Varchi; // creo due vector per svincoli e varchi per necessito di accesso casuale agli elementi 
 
 		std::string myText;
 		std::string pathHighway = std::string(PROJECT_SOURCE_DIR) + "/data/Highway.txt"; // costruisco il path del file Highway.txt
-
-		std::ifstream HighwayFile(pathHighway); // apro il file in lettura
-		if (!HighwayFile.is_open()) { // controllo che il file sia stato aperto correttamente
-			throw std::runtime_error("Impossibile aprire il file Highway.txt");
-		}
-		std::cout << "File aperto correttamente... Procedo con lettura\n";
 		
-		while (std::getline(HighwayFile, myText)) {
-
-			std::stringstream ss(myText); // uso stringstream per evitare problemi con spazi e \r
-			double numero;
-			char type;
-
-			ss >> numero >> type; // leggo numero e tipo (V o S)
-
-			if (!ss || (type != 'V' && type != 'S')) {
-				throw std::invalid_argument("Errore: Tipo non valido nel file. Deve essere V o S.");
-			}
-
-			if (type == 'V') {
-				Varchi.push_back(Nodo(numero, type));
-			}
-			else if (type == 'S') {
-				Svincoli.push_back(Nodo(numero, type));
-			}
-		} // leggo il file riga per riga e popolo le code di priorità
-
-
-		std::cout << "File letto correttamente... Numero varchi = " << Varchi.size() << "; Numero Svincoli = " << Svincoli.size() << "; ... Procedo con verifica dei dati\n";
-		std::sort(Svincoli.begin(), Svincoli.end());
-		std::sort(Varchi.begin(), Varchi.end()); // ordino i vettori per km in modo crescente, (la numerazione dei varchi e svincoli è implicita nella posizione nel vettore ordinato)
-		int cV = 0;
-		int cS = 0;
-		if (Varchi.size() < 2) throw std::invalid_argument("Errore: Devono esserci almeno 2 varchi.");
-
-		if (Varchi.at(0).km_ < Svincoli.at(0).km_) throw std::invalid_argument("Errore: Il primo varco deve essere dopo il primo svincolo.");
-
-		if (Varchi.back().km_ > Svincoli.back().km_) throw std::invalid_argument("Errore: L'ultimo varco deve essere prima dell'ultimo svincolo.");
-
-		while (cV < Varchi.size()) {
-			if (abs(Svincoli.at(cS).km_ - Varchi.at(cV).km_) < 1) throw std::invalid_argument("Errore: Esiste uno svincolo e un varco con distanza inferiore ad 1 km.");
-			if (Svincoli.at(cS).km_ < Varchi.at(cV).km_)	cS++; else cV++;
-		}// verifico che non esistano svincoli e varchi con distanza inferiore ad 1 km
-
-		std::cout << "Verifica completata... Procedo con la simulazione:\n";
-		std::cout << "1 fase: creazione file Runs.txt...\n";
+		Highway highway(pathHighway); // utilizzo la classe Highway per caricare e validare i dati
+		std::cout << "File Highway aperto correttamente ... Procedo con lettura\n";
+		Varchi = highway.getGates();
+		Svincoli = highway.getJunctions();
+		
+		std::cout << "lettura completata... creazione file Runs.txt\n";
 		std::string pathRuns = std::string(PROJECT_SOURCE_DIR) + "/data/Runs.txt"; // costruisco il path del file Runs.txt
 		std::ofstream RunsFile(pathRuns); // apro il file in scrittura
 		if (!RunsFile.is_open()) { // controllo che il file sia stato aperto correttamente
@@ -184,14 +133,14 @@ int main() {
 		while (autoGenerate++ < NUM_AUTO) {
 			int ingressoIndex = std::rand() % (Svincoli.size() - 1);
 			int uscitaIndex = std::rand() % (Svincoli.size() - ingressoIndex - 1) + ingressoIndex + 1;
-			double distanzaPercorsa = Svincoli[uscitaIndex].km_ - Svincoli[ingressoIndex].km_;
+			double distanzaPercorsa = Svincoli[uscitaIndex].position - Svincoli[ingressoIndex].position;
 			Auto a{ generateTarga(autoGenerate),ingressoIndex,uscitaIndex,orario,distanzaPercorsa };
 			orario += ((std::rand() % 95) + 5) / 10.0;
 			RunsFile << a << std::endl;
 		}
 		std::cout << "Simulazione completata... Procedo con la simulazione dei passaggi nei varchi\n";
 
-		HighwayFile.close();
+		//HighwayFile.close();
 		RunsFile.close();
 
 		std::ifstream RunsFileRead(pathRuns);
@@ -238,8 +187,8 @@ int main() {
 					double delta_km = (velocita_precedente * ((inizio_intervallo - inizio_intervallo_precedente) / 3600.0));
 					distanzaPercorsa += delta_km;
 					for (int v = 0; v < Varchi.size(); v++) {
-						if (distanzaPercorsa + Svincoli[ingresso].km_ >= Varchi[v].km_ && distanzaPercorsa + Svincoli[ingresso].km_ - delta_km < Varchi[v].km_) { // se l'auto ha superato il varco in questo intervallo
-							double istante_passaggio = inizio_intervallo_precedente + (((Varchi[v].km_ - (distanzaPercorsa - delta_km + Svincoli[ingresso].km_)) / velocita_precedente) * 3600.0);
+						if (distanzaPercorsa + Svincoli[ingresso].position >= Varchi[v].position && distanzaPercorsa + Svincoli[ingresso].position - delta_km < Varchi[v].position) { // se l'auto ha superato il varco in questo intervallo
+							double istante_passaggio = inizio_intervallo_precedente + (((Varchi[v].position - (distanzaPercorsa - delta_km + Svincoli[ingresso].position)) / velocita_precedente) * 3600.0);
 							PassagesFile << v << " " << targa << " " << istante_passaggio << '\n';
 						}
 					}

@@ -32,7 +32,10 @@ target_link_libraries(main
     ${PROJECT_NAME}
     libTutor
 )
-
+target_link_libraries(simulatore
+    ${PROJECT_NAME}
+    libTutor
+)
 install(TARGETS ${PROJECT_NAME} libTutor
     LIBRARY DESTINATION lib
     INCLUDES DESTINATION include
