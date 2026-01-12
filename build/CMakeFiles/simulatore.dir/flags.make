@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DPROJECT_SOURCE_DIR=\"/home/simone/Desktop/HighwaySimulator\"
 
-CXX_INCLUDES = -I/home/simone/Desktop/HighwaySimulator/include
+CXX_INCLUDES = -I/home/simone/Desktop/HighwaySimulator/include -I/home/simone/Desktop/HighwaySimulator/src
 
 CXX_FLAGS = -std=gnu++11
 

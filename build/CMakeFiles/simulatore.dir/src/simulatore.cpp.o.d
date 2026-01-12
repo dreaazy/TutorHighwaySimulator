@@ -162,4 +162,6 @@ CMakeFiles/simulatore.dir/src/simulatore.cpp.o: \
  /usr/include/c++/13/bits/algorithmfwd.h \
  /usr/include/c++/13/bits/uniform_int_dist.h \
  /usr/include/c++/13/bits/stl_tempbuf.h /usr/include/c++/13/sstream \
- /usr/include/c++/13/bits/sstream.tcc
+ /usr/include/c++/13/bits/sstream.tcc \
+ /home/simone/Desktop/HighwaySimulator/include/Highway.h \
+ /home/simone/Desktop/HighwaySimulator/include/simulatore.h

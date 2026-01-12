@@ -3,6 +3,8 @@
 
 CMakeFiles/simulatore.dir/src/simulatore.cpp.o
  /home/simone/Desktop/HighwaySimulator/src/simulatore.cpp
+ /home/simone/Desktop/HighwaySimulator/include/Highway.h
+ /home/simone/Desktop/HighwaySimulator/include/simulatore.h
  /usr/include/aarch64-linux-gnu/asm/errno.h
  /usr/include/aarch64-linux-gnu/bits/atomic_wide_counter.h
  /usr/include/aarch64-linux-gnu/bits/byteswap.h

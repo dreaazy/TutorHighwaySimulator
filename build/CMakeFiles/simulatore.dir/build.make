@@ -92,6 +92,7 @@ simulatore_EXTERNAL_OBJECTS =
 
 simulatore: CMakeFiles/simulatore.dir/src/simulatore.cpp.o
 simulatore: CMakeFiles/simulatore.dir/build.make
+simulatore: liblibSimulatore.so
 simulatore: CMakeFiles/simulatore.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/simone/Desktop/HighwaySimulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable simulatore"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/simulatore.dir/link.txt --verbose=$(VERBOSE)

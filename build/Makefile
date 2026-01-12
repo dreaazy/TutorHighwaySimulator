@@ -175,6 +175,19 @@ libTutor/fast:
 .PHONY : libTutor/fast
 
 #=============================================================================
+# Target rules for targets named libSimulatore
+
+# Build rule for target.
+libSimulatore: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 libSimulatore
+.PHONY : libSimulatore
+
+# fast build rule for target.
+libSimulatore/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libSimulatore.dir/build.make CMakeFiles/libSimulatore.dir/build
+.PHONY : libSimulatore/fast
+
+#=============================================================================
 # Target rules for targets named main
 
 # Build rule for target.
@@ -206,6 +219,7 @@ src/Highway.o: src/Highway.cpp.o
 # target to build an object file
 src/Highway.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/libTutor.dir/build.make CMakeFiles/libTutor.dir/src/Highway.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libSimulatore.dir/build.make CMakeFiles/libSimulatore.dir/src/Highway.cpp.o
 .PHONY : src/Highway.cpp.o
 
 src/Highway.i: src/Highway.cpp.i
@@ -214,6 +228,7 @@ src/Highway.i: src/Highway.cpp.i
 # target to preprocess a source file
 src/Highway.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/libTutor.dir/build.make CMakeFiles/libTutor.dir/src/Highway.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libSimulatore.dir/build.make CMakeFiles/libSimulatore.dir/src/Highway.cpp.i
 .PHONY : src/Highway.cpp.i
 
 src/Highway.s: src/Highway.cpp.s
@@ -222,6 +237,7 @@ src/Highway.s: src/Highway.cpp.s
 # target to generate assembly for a file
 src/Highway.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/libTutor.dir/build.make CMakeFiles/libTutor.dir/src/Highway.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libSimulatore.dir/build.make CMakeFiles/libSimulatore.dir/src/Highway.cpp.s
 .PHONY : src/Highway.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -308,6 +324,7 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... libSimulatore"
 	@echo "... libTutor"
 	@echo "... main"
 	@echo "... simulatore"

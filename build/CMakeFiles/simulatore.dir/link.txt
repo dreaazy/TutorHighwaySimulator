@@ -1,1 +1,1 @@
-/usr/bin/c++ -rdynamic CMakeFiles/simulatore.dir/src/simulatore.cpp.o -o simulatore 
+/usr/bin/c++ -rdynamic CMakeFiles/simulatore.dir/src/simulatore.cpp.o -o simulatore  -Wl,-rpath,/home/simone/Desktop/HighwaySimulator/build liblibSimulatore.so 

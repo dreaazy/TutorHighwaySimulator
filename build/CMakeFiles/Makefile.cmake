@@ -45,6 +45,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/libTutor.dir/DependInfo.cmake"
+  "CMakeFiles/libSimulatore.dir/DependInfo.cmake"
   "CMakeFiles/main.dir/DependInfo.cmake"
   "CMakeFiles/simulatore.dir/DependInfo.cmake"
   )
