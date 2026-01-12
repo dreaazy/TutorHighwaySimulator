@@ -14,6 +14,9 @@ add_library(libTutor SHARED
     src/Highway.cpp
 )
 
+ add_library(libSimulatore SHARED
+    src/Highway.cpp
+ "include/simulatore.h")
 add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(${PROJECT_NAME} INTERFACE
@@ -34,7 +37,7 @@ target_link_libraries(main
 )
 target_link_libraries(simulatore
     ${PROJECT_NAME}
-    libTutor
+    libSimulatore
 )
 install(TARGETS ${PROJECT_NAME} libTutor
     LIBRARY DESTINATION lib
