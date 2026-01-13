@@ -5,6 +5,10 @@
 //only the set_time can extract from the heap
 //used an unordered_map<plate, LastPassage> to save the last time a car X passed in front of a tutor, so the next time I extract event of car X I can compute it's avg speed
 
+
+#ifndef TUTOR_H 
+#define TUTOR_H   
+
 #include "../include/tutor.h"
 
 #include <iostream>
@@ -12,6 +16,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+
 
 
 // I want a min heap, because I want to extract before the smallest event
@@ -43,7 +48,10 @@ Tutor::Tutor(const std::string& file) : filePassages(file)
 void Tutor::processEvent(Event e)
 {
 	//update stats of varco
-	varcoStats_[e.id].totalVehicles++;
+	VarcoStats& vs = varcoStats_[e.id];
+	vs.totalVehicles++;
+
+
 	
 	//take data of the car that JUST PASSED THE STATION
 	double currentTime = e.time_;
@@ -97,7 +105,7 @@ void Tutor::processEvent(Event e)
 			
 		//to be printed
 		//plate - average velocity - start varco - start time - end varco - end time
-			emit_ticket(currentPlate, vMedia, previousKmStation, previousTime, currentKmStation, currentTime);
+			emit_ticket(currentPlate, vMedia, previous.id , previousKmStation, previousTime, e.id, currentKmStation, currentTime);
 						
 		}
 		
@@ -177,47 +185,87 @@ void Tutor::createHeap()
 }
 
 
-
 void Tutor::stats() const
 {
-	std::cout << "---------------------------------------------------" <<"\n";
-	std::cout << "Stats of vehicles until time: " << curTime_ << "\n";
-    for(auto& p : varcoStats_)
+
+    int totalSeconds = static_cast<int>(curTime_);
+    int minutes = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+
+    std::cout << "---------------------------------------------------\n";
+    std::cout << "Stats of vehicles until time: "
+              << minutes << "m ";
+
+    if (seconds < 10) std::cout << '0';
+    std::cout << seconds << "s\n";
+
+	//compulative average
+    double totalMinutes = curTime_ / 60.0; //until curtime
+
+    for (const auto& p : varcoStats_)
     {
-		int varco = p.first;
-		const VarcoStats& s = p.second;
-		
-		double minutes = curTime_ / 60.0;
-		int avgPerMin = minutes > 0 ? s.totalVehicles / minutes : 0;
-		
-		std::cout << "Varco "<< varco << ": "
-				  << s.totalVehicles << " veicoli, "
-				  << avgPerMin << " veicoli/min \n";
-				  
-	}
-	
-	double avgSpeed = totalTime_ > 0 ? totalDistance_ / totalTime_ : 0;
-	
-	std::cout << "velocita media: " << avgSpeed << "\n";
-	std::cout << "veicoli sanzionati: " << santionedVehicles_ << "\n";
+        int varco = p.first;
+        const VarcoStats& s = p.second;
+
+        double avgPerMin = 0.0;
+        if (totalMinutes > 0.0)
+        {
+            avgPerMin = s.totalVehicles / totalMinutes;
+        }
+
+        std::cout << "Varco ID " << varco << ": "
+                  << s.totalVehicles << " veicoli, "
+                  << avgPerMin << " veicoli/min\n";
+    }
+
+    //global average speed
+    double avgSpeed = totalTime_ > 0
+                      ? totalDistance_ / totalTime_
+                      : 0.0;
+
+    std::cout << "Velocita media: " << avgSpeed << " km/h\n";
+    std::cout << "Veicoli sanzionati: " << santionedVehicles_ << "\n";
 }
 
 
-void Tutor::emit_ticket(const std::string plate,
+
+
+
+
+
+void Tutor::emit_ticket(const std::string& plate,
                         double speed,
-                        int entrVarco,
+                        int idEnt,
+                        double entrVarco,
                         double entrTime,
-                        int endVarco,
+                        int idEnd,
+                        double endVarco,
                         double endTime)
 {
-    std::cout << "Plate: " << plate
-              << " | Speed: " << speed << " km/h"
-              << " | Varco Entrata: " << entrVarco << " km"
-              << " at " << entrTime << " sec."
-              << " | Varco Uscita: " << endVarco << " km"
-              << " at " << endTime << " sec."
-              << '\n';
+    int totalSecondsEnt = static_cast<int>(entrTime);
+    int minutesEnt = totalSecondsEnt / 60;
+    int secondsEnt = totalSecondsEnt % 60;
+
+    int totalSecondsEnd = static_cast<int>(endTime);
+    int minutesEnd = totalSecondsEnd / 60;
+    int secondsEnd = totalSecondsEnd % 60;
+
+    std::cout << "Targa: " << plate
+              << " | Velocita': " << speed << " km/h"
+              << " | Varco entrata id: " << idEnt << " al " << entrVarco << " km"
+              << " | time: " << minutesEnt << "m ";
+
+    if (secondsEnt < 10) std::cout << '0';
+    std::cout << secondsEnt << "s";
+
+    std::cout << " | Varco uscita id: " << idEnd << " al " << endVarco << " km"
+              << " | time: " << minutesEnd << "m ";
+
+    if (secondsEnd < 10) std::cout << '0';
+    std::cout << secondsEnd << "s\n";
 }
+
+
 
 
 
@@ -278,6 +326,7 @@ void Tutor::reset()
 		//clear maps
 		last_passage.clear();
 		varcoStats_.clear();
+
 		
 		//svuoto heap
 		heap = std::priority_queue<Event>();
@@ -286,5 +335,9 @@ void Tutor::reset()
 		
 	
 }
+
+
+#endif
+
 
 

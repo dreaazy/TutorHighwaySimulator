@@ -29,8 +29,7 @@ struct LastPassage {
 
 struct VarcoStats
 {
-	int totalVehicles = 0;
-	
+    int totalVehicles = 0;
 };
 
 
@@ -74,6 +73,6 @@ public:
     void reset();
     //the time taken as parameter must be in seconds
     void set_time(const std::string& t);
-    void emit_ticket(std::string plate, double speed, int entVarco, double entTime, int endVarco, double endTime);
+    void emit_ticket(const std::string &plate, double speed, int ident, double entVarco, double entTime, int idend, double endVarco, double endTime);
     
 };
