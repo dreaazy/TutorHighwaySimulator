@@ -13,7 +13,7 @@
 struct Event
 {
 	int id; //id of the varco
-	std::string plate_; //plate of the veichle
+	std::string plate_; //plate of the vehicle
     double time_;
     
     //I need this to manage the heap order
@@ -23,7 +23,7 @@ struct Event
 
 //stored information for the ticket
 struct LastPassage {
-    int id; //this is the km
+    int id;
     double time;
 };
 
@@ -36,7 +36,6 @@ struct VarcoStats
 // Class
 
 
-
 class Tutor
 {
 private:
@@ -44,7 +43,7 @@ private:
 	double curTime_ = 0; // the timeline start at time 0
 	
 	
-	//attributes used for stats - used to compute the average speed 
+	//attributes used for stats used to compute the average speed and stats
 	int totalDistance_ = 0;
 	double totalTime_ = 0;
 	int santionedVehicles_ = 0;
@@ -71,8 +70,9 @@ public:
     void processEvent(Event e);
     void stats() const;
     void reset();
-    //the time taken as parameter must be in seconds
+    //it takes a string, 12 are seconds, 12m are minutes
     void set_time(const std::string& t);
+    //used to print on terminal the tickets
     void emit_ticket(const std::string &plate, double speed, int ident, double entVarco, double entTime, int idend, double endVarco, double endTime);
     
 };
